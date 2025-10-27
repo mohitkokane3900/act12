@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'welcome_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -13,8 +14,10 @@ class _SignupPageState extends State<SignupPage> {
   final nameCtl = TextEditingController();
   final emailCtl = TextEditingController();
   final passCtl = TextEditingController();
+  final confirmCtl = TextEditingController();
 
   bool hidePass = true;
+  bool hideConfirm = true;
 
   void trySignup() {
     final isValid = formKey.currentState?.validate() ?? false;
@@ -29,11 +32,18 @@ class _SignupPageState extends State<SignupPage> {
       return;
     }
 
+    final name = nameCtl.text.trim();
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Account created for ${nameCtl.text.trim()}'),
+        content: Text('Account created for $name'),
         backgroundColor: Colors.green,
       ),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => WelcomePage(username: name)),
     );
   }
 
@@ -42,6 +52,7 @@ class _SignupPageState extends State<SignupPage> {
     nameCtl.dispose();
     emailCtl.dispose();
     passCtl.dispose();
+    confirmCtl.dispose();
     super.dispose();
   }
 
@@ -146,6 +157,36 @@ class _SignupPageState extends State<SignupPage> {
                       }
                       if (v.length < 6) {
                         return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: confirmCtl,
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          hideConfirm ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            hideConfirm = !hideConfirm;
+                          });
+                        },
+                      ),
+                    ),
+                    obscureText: hideConfirm,
+                    validator: (value) {
+                      final v = value ?? '';
+                      if (v.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (v != passCtl.text) {
+                        return 'Passwords do not match';
                       }
                       return null;
                     },
